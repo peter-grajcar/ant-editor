@@ -41,7 +41,22 @@ public class CodeEditorPane extends JTextPane implements DocumentListener {
     }
 
     private void applyStyle() {
-        this.getStyledDocument().setCharacterAttributes(0, this.getText().length(), defaultStyle, false);
+        getStyledDocument().setCharacterAttributes(0, this.getText().length(), defaultStyle, true);
+
+        if(syntaxHighlighter == null) return;
+
+        try {
+            Iterable<CodeEditorHighlight> highlights = syntaxHighlighter.highlightCode(
+                    getDocument().getText(0, getDocument().getLength())
+            );
+
+            for(CodeEditorHighlight highlight : highlights) {
+                int length = highlight.getEnd() - highlight.getStart();
+                getStyledDocument().setCharacterAttributes(highlight.getStart(), length, highlight.getStyle().asAttributeSet(), true);
+            }
+        } catch (BadLocationException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override

@@ -1,4 +1,6 @@
 import component.CodeEditorPane;
+import component.CodeEditorStyle;
+import xml.XmlSyntaxHighlighter;
 
 import javax.swing.*;
 import java.awt.*;
@@ -21,8 +23,16 @@ public class Main {
         mainPanel = new JPanel();
         mainPanel.setLayout(new BorderLayout());
 
+        // Xml code editor
         codeEditor = new CodeEditorPane();
+
+        XmlSyntaxHighlighter xmlHighlighter = new XmlSyntaxHighlighter();
+        xmlHighlighter.setCommentStyle(new CodeEditorStyle(false, true, Color.GRAY));
+        xmlHighlighter.setElementStyle(new CodeEditorStyle(false, false, Color.BLUE));
+
+        codeEditor.setSyntaxHighlighter(xmlHighlighter);
         JScrollPane scrollPane = new JScrollPane(codeEditor);
+
 
         mainPanel.add(scrollPane, BorderLayout.CENTER);
         mainFrame.add(mainPanel);

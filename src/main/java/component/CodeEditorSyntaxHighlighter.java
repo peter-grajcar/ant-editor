@@ -7,6 +7,6 @@ package component;
  */
 public interface CodeEditorSyntaxHighlighter {
 
-    Iterable<CodeEditorStyle> highlightCode(String code);
+    Iterable<CodeEditorHighlight> highlightCode(String code);
 
 }

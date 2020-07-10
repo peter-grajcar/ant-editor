@@ -24,6 +24,13 @@ public class CodeEditorStyle {
         this.backgroundColour = backgroundColour;
     }
 
+    public CodeEditorStyle(boolean bold, boolean italic, Color colour) {
+        this.bold = bold;
+        this.italic = italic;
+        this.colour = colour;
+        this.backgroundColour = new Color(0, 0, 0, 0);
+    }
+
     public boolean isBold() {
         return bold;
     }
