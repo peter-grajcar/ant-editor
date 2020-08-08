@@ -9,7 +9,7 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * created: 10/07/2020
+ * This class processes XML code and lists parts of code which are to be highlighted.
  *
  * @author Peter Grajcar
  */
@@ -47,6 +47,10 @@ public class XmlSyntaxHighlighter implements CodeEditorSyntaxHighlighter {
             return index;
         }
 
+        public void move(int position) {
+            this.index = position;
+        }
+
         @Override
         public boolean hasNext() {
             return index < str.length();
@@ -65,6 +69,7 @@ public class XmlSyntaxHighlighter implements CodeEditorSyntaxHighlighter {
 
     private CodeEditorStyle commentStyle;
     private CodeEditorStyle elementStyle;
+    private CodeEditorStyle stringStyle;
 
     @Override
     public Iterable<CodeEditorHighlight> highlightCode(String code) {
@@ -79,8 +84,10 @@ public class XmlSyntaxHighlighter implements CodeEditorSyntaxHighlighter {
                 if(stream.peek() == '!') {
                     CodeEditorHighlight comment = processComment(stream.position() - 1, stream);
                     if(comment != null) highlights.add(comment);
+                } else if(stream.peek() == '/') {
+                    //TODO: processCloseTag()
                 } else {
-                    List<CodeEditorHighlight> element = processElement(stream.position() - 1, stream);
+                    List<CodeEditorHighlight> element = processStartTag(stream.position() - 1, stream);
                     if(element != null) highlights.addAll(element);
                 }
             }
@@ -105,10 +112,83 @@ public class XmlSyntaxHighlighter implements CodeEditorSyntaxHighlighter {
         return new CodeEditorHighlight(start, stream.position(), commentStyle);
     }
 
-    private List<CodeEditorHighlight> processElement(int start, StringStream stream) {
-        return null;
+    private List<CodeEditorHighlight> processStartTag(int start, StringStream stream) {
+        List<CodeEditorHighlight> highlights = new ArrayList<>();
+
+        if(!Character.isLetter(stream.peek()) && stream.peek() != '_' && stream.peek() != ':')
+            return null;
+
+        stream.next();
+
+        while(stream.hasNext() && isNameChar(stream.peek()))
+            stream.next();
+
+        skipWhitespace(stream);
+
+        // attribute processing
+        while(isNameChar(stream.peek())) {
+            while(isNameChar(stream.peek())) stream.next();
+            skipWhitespace(stream);
+            if(stream.peek() == '=') {
+                stream.next();
+                skipWhitespace(stream);
+                CodeEditorHighlight stringHighlight = processString(stream.position(), stream);
+                if (stringHighlight != null) {
+                    highlights.add(stringHighlight);
+                }
+            }
+            skipWhitespace(stream);
+        }
+
+        if(stream.peek() == '/' && stream.peek(1) == '>') {
+            stream.skip(2);
+        } else if(stream.peek() == '>') {
+            stream.next();
+        } else {
+            return null;
+        }
+
+        CodeEditorHighlight highlight = new CodeEditorHighlight(start, stream.position(), elementStyle);
+        highlights.add(0, highlight);
+
+        return highlights;
     }
 
+    private CodeEditorHighlight processString(int start, StringStream stream) {
+        if(stream.peek() != '\"')
+            return null;
+
+        if(!stream.hasNext())
+            return null;
+
+        stream.next();
+
+        int backslashes = 0;
+        while(!(stream.peek() == '\"' && (backslashes & 1) == 0)) {
+            if(stream.peek() == '\\') ++backslashes;
+            else backslashes = 0;
+
+            if(!stream.hasNext()) {
+                stream.move(start);
+                return null;
+            }
+
+            stream.next();
+        }
+
+        if(stream.peek() != '\"') {
+            stream.move(start);
+            return null;
+        }
+
+        stream.next();
+        return new CodeEditorHighlight(start, stream.position(), stringStyle);
+    }
+
+    private void skipWhitespace(StringStream stream) {
+        while(stream.hasNext() && isWhitespace(stream.peek()))
+            stream.next();
+    }
 
     private boolean isWhitespace(char ch) {
         return ch == 0x20 || ch == 0x09 || ch == 0x0D || ch == 0x0A;
@@ -132,5 +212,13 @@ public class XmlSyntaxHighlighter implements CodeEditorSyntaxHighlighter {
 
     public void setElementStyle(CodeEditorStyle elementStyle) {
         this.elementStyle = elementStyle;
+    }
+
+    public CodeEditorStyle getStringStyle() {
+        return stringStyle;
+    }
+
+    public void setStringStyle(CodeEditorStyle stringStyle) {
+        this.stringStyle = stringStyle;
     }
 }
