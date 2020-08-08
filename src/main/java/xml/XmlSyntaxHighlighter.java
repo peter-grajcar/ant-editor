@@ -15,38 +15,69 @@ import java.util.List;
  */
 public class XmlSyntaxHighlighter implements CodeEditorSyntaxHighlighter {
 
+    /**
+     *
+     */
     private static class StringStream implements Iterable<Character>, Iterator<Character> {
         private String str;
         private int index;
 
+        /**
+         *
+         * @param str
+         */
         public StringStream(String str) {
             this.str = str;
         }
 
+        /**
+         *
+         * @return
+         */
         public char peek() {
             if(index >= str.length())
                 return 0;
             return str.charAt(index);
         }
 
+        /**
+         *
+         * @param offset
+         * @return
+         */
         public char peek(int offset) {
             if(index + offset >= str.length())
                 return 0;
             return str.charAt(index + offset);
         }
 
+        /**
+         *
+         */
         public void reset() {
             index = 0;
         }
 
+        /**
+         *
+         * @param offset
+         */
         public void skip(int offset) {
             index = Math.min(index + offset, str.length());
         }
 
+        /**
+         *
+         * @return
+         */
         public int position() {
             return index;
         }
 
+        /**
+         *
+         * @param position
+         */
         public void move(int position) {
             this.index = position;
         }
@@ -70,6 +101,7 @@ public class XmlSyntaxHighlighter implements CodeEditorSyntaxHighlighter {
     private CodeEditorStyle commentStyle;
     private CodeEditorStyle elementStyle;
     private CodeEditorStyle stringStyle;
+    private CodeEditorStyle attributeStyle;
 
     @Override
     public Iterable<CodeEditorHighlight> highlightCode(String code) {
@@ -82,12 +114,13 @@ public class XmlSyntaxHighlighter implements CodeEditorSyntaxHighlighter {
 
             if(ch == '<') {
                 if(stream.peek() == '!') {
-                    CodeEditorHighlight comment = processComment(stream.position() - 1, stream);
+                    CodeEditorHighlight comment = processComment(stream.position(), stream);
                     if(comment != null) highlights.add(comment);
                 } else if(stream.peek() == '/') {
-                    //TODO: processCloseTag()
+                    CodeEditorHighlight closeTag = processCloseTag(stream.position(), stream);
+                    highlights.add(closeTag);
                 } else {
-                    List<CodeEditorHighlight> element = processStartTag(stream.position() - 1, stream);
+                    List<CodeEditorHighlight> element = processStartTag(stream.position(), stream);
                     if(element != null) highlights.addAll(element);
                 }
             }
@@ -98,6 +131,12 @@ public class XmlSyntaxHighlighter implements CodeEditorSyntaxHighlighter {
         return highlights;
     }
 
+    /**
+     *
+     * @param start
+     * @param stream
+     * @return
+     */
     private CodeEditorHighlight processComment(int start, StringStream stream) {
         if(stream.peek() != '!' || stream.peek(1) != '-' || stream.peek(2) != '-')
             return null;
@@ -109,9 +148,15 @@ public class XmlSyntaxHighlighter implements CodeEditorSyntaxHighlighter {
 
         stream.skip(3);
 
-        return new CodeEditorHighlight(start, stream.position(), commentStyle);
+        return new CodeEditorHighlight(start - 1, stream.position(), commentStyle);
     }
 
+    /**
+     *
+     * @param start
+     * @param stream
+     * @return
+     */
     private List<CodeEditorHighlight> processStartTag(int start, StringStream stream) {
         List<CodeEditorHighlight> highlights = new ArrayList<>();
 
@@ -127,7 +172,10 @@ public class XmlSyntaxHighlighter implements CodeEditorSyntaxHighlighter {
 
         // attribute processing
         while(isNameChar(stream.peek())) {
+            int attrStart = stream.position();
             while(isNameChar(stream.peek())) stream.next();
+            highlights.add(new CodeEditorHighlight(attrStart, stream.position(), attributeStyle));
+
             skipWhitespace(stream);
             if(stream.peek() == '=') {
                 stream.next();
@@ -148,15 +196,53 @@ public class XmlSyntaxHighlighter implements CodeEditorSyntaxHighlighter {
             return null;
         }
 
-        CodeEditorHighlight highlight = new CodeEditorHighlight(start, stream.position(), elementStyle);
+        CodeEditorHighlight highlight = new CodeEditorHighlight(start - 1, stream.position(), elementStyle);
         highlights.add(0, highlight);
 
         return highlights;
     }
 
-    private CodeEditorHighlight processString(int start, StringStream stream) {
-        if(stream.peek() != '\"')
+    /**
+     *
+     * @param start
+     * @param stream
+     * @return
+     */
+    private CodeEditorHighlight processCloseTag(int start, StringStream stream) {
+        if(stream.peek() != '/')
             return null;
+
+        stream.skip(1);
+
+        skipWhitespace(stream);
+
+        while(isNameChar(stream.peek()) || stream.peek() == '_' || stream.peek() == ':') {
+            stream.next();
+        }
+
+        skipWhitespace(stream);
+
+        if(stream.peek() != '>') {
+            stream.move(start);
+            return null;
+        }
+
+        stream.skip(1);
+
+        return new CodeEditorHighlight(start - 1, stream.position(), elementStyle);
+    }
+
+    /**
+     *
+     * @param start
+     * @param stream
+     * @return
+     */
+    private CodeEditorHighlight processString(int start, StringStream stream) {
+        if(stream.peek() != '\"' && stream.peek() != '\'')
+            return null;
+
+        char quote = stream.peek();
 
         if(!stream.hasNext())
             return null;
@@ -164,7 +250,7 @@ public class XmlSyntaxHighlighter implements CodeEditorSyntaxHighlighter {
         stream.next();
 
         int backslashes = 0;
-        while(!(stream.peek() == '\"' && (backslashes & 1) == 0)) {
+        while(!(stream.peek() == quote && (backslashes & 1) == 0)) {
             if(stream.peek() == '\\') ++backslashes;
             else backslashes = 0;
 
@@ -176,7 +262,7 @@ public class XmlSyntaxHighlighter implements CodeEditorSyntaxHighlighter {
             stream.next();
         }
 
-        if(stream.peek() != '\"') {
+        if(stream.peek() != quote) {
             stream.move(start);
             return null;
         }
@@ -185,15 +271,29 @@ public class XmlSyntaxHighlighter implements CodeEditorSyntaxHighlighter {
         return new CodeEditorHighlight(start, stream.position(), stringStyle);
     }
 
+    /**
+     *
+     * @param stream
+     */
     private void skipWhitespace(StringStream stream) {
         while(stream.hasNext() && isWhitespace(stream.peek()))
             stream.next();
     }
 
+    /**
+     *
+     * @param ch
+     * @return
+     */
     private boolean isWhitespace(char ch) {
         return ch == 0x20 || ch == 0x09 || ch == 0x0D || ch == 0x0A;
     }
 
+    /**
+     *
+     * @param ch
+     * @return
+     */
     private boolean isNameChar(char ch) {
         return Character.isLetterOrDigit(ch) || ch == '.' || ch == '-' || ch == '_' || ch == ':';
     }
@@ -220,5 +320,13 @@ public class XmlSyntaxHighlighter implements CodeEditorSyntaxHighlighter {
 
     public void setStringStyle(CodeEditorStyle stringStyle) {
         this.stringStyle = stringStyle;
+    }
+
+    public CodeEditorStyle getAttributeStyle() {
+        return attributeStyle;
+    }
+
+    public void setAttributeStyle(CodeEditorStyle attributeStyle) {
+        this.attributeStyle = attributeStyle;
     }
 }
