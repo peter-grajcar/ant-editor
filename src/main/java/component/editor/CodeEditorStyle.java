@@ -1,4 +1,4 @@
-package component;
+package component.editor;
 
 import javax.swing.text.AttributeSet;
 import javax.swing.text.SimpleAttributeSet;

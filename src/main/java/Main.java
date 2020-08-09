@@ -1,14 +1,13 @@
-import component.CodeEditorPane;
-import component.CodeEditorStyle;
-import component.TargetGraph;
-import org.jdom2.JDOMException;
-import xml.XmlSyntaxHighlighter;
+import component.LogPanel;
+import component.MainPanel;
+import component.StructurePanel;
+import component.editor.CodeEditorPane;
+import component.graph.TargetGraph;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.MatteBorder;
 import java.awt.*;
-import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 
@@ -19,36 +18,18 @@ import java.io.IOException;
  */
 public class Main {
 
-    static final String CODE_EDITOR_CARD = "code-editor";
-    static final String TARGET_GRAPH_CARD = "target-graph";
-
     private JMenuBar menuBar;
 
-    private JPanel mainPanel;
+    private MainPanel mainPanel;
 
-    private JTabbedPane centralPanel;
+    private LogPanel logPanel;
 
-    private CardLayout editorCardLayout;
-    private JPanel editorPanel;
-    private CodeEditorPane codeEditor;
-
-    private TargetGraph graph;
-
-    private JPanel logPanel;
-    private JTextArea log;
-
-    private JPanel structurePanel;
-    private JTree structureTree;
+    private StructurePanel structurePanel;
 
     public void makeUI() {
-        JFrame mainFrame = new JFrame();
+        JFrame mainFrame = new JFrame("Ant Editor");
         mainFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         mainFrame.setSize(new Dimension(800, 600));
-
-        mainPanel = new JPanel();
-        mainPanel.setLayout(new BorderLayout());
-
-        System.setProperty("apple.laf.useScreenMenuBar", "true");
 
         menuBar = new JMenuBar();
         JMenu menu = new JMenu("File");
@@ -58,75 +39,27 @@ public class Main {
         menuBar.add(menu);
         mainFrame.add(menuBar, BorderLayout.NORTH);
 
-        logPanel = new JPanel();
-        logPanel.setLayout(new BorderLayout());
-        logPanel.setPreferredSize(new Dimension(400, 100));
-        mainPanel.add(logPanel, BorderLayout.SOUTH);
 
-        log = new JTextArea();
-        log.setEditable(false);
-        log.setFont(new Font("Courier New", Font.PLAIN, 12));
-        log.setText("> test");
-        JScrollPane logScrollPane = new JScrollPane(log);
-        logScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-        logPanel.add(logScrollPane, BorderLayout.CENTER);
-
-        structurePanel = new JPanel();
-        structurePanel.setLayout(new BorderLayout());
-        structurePanel.setPreferredSize(new Dimension(100, 400));
-        mainPanel.add(structurePanel, BorderLayout.WEST);
-
-        structureTree = new JTree();
-        JScrollPane treeScrollPane = new JScrollPane(structureTree);
-        treeScrollPane.setBorder(new EmptyBorder(0, 0, 0 ,0));
-        structurePanel.add(treeScrollPane);
-
-        editorPanel = new JPanel();
-        editorPanel.setLayout(new BorderLayout());
-
-        // Xml code editor
-        codeEditor = new CodeEditorPane();
-        JTextArea lineNumbers = new JTextArea("1\n2\n3");
-        codeEditor.setLineNumbers(lineNumbers);
-
-        JPanel codeEditorPanel = new JPanel();
-        codeEditorPanel.setLayout(new BorderLayout());
-        codeEditorPanel.add(codeEditor, BorderLayout.CENTER);
-        codeEditorPanel.add(lineNumbers, BorderLayout.WEST);
-
-        JScrollPane editorScrollPane = new JScrollPane(codeEditorPanel);
-        editorScrollPane.setBorder(new MatteBorder(1, 0, 0, 0, new Color(0xC0C0C0)));
-        editorScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-        editorScrollPane.getVerticalScrollBar().setUnitIncrement(12);
-        editorScrollPane.getHorizontalScrollBar().setUnitIncrement(12);
-
-        editorPanel.add(editorScrollPane, BorderLayout.CENTER);
+        structurePanel = new StructurePanel();
+        mainPanel = new MainPanel();
+        logPanel = new LogPanel();
 
         loadFile("src/main/resources/build.xml");
 
-        XmlSyntaxHighlighter xmlHighlighter = new XmlSyntaxHighlighter();
-        xmlHighlighter.setCommentStyle(new CodeEditorStyle(false, true, Color.GRAY));
-        xmlHighlighter.setElementStyle(new CodeEditorStyle(false, false, Color.BLUE));
-        xmlHighlighter.setStringStyle(new CodeEditorStyle(false, false, Color.RED));
-        xmlHighlighter.setAttributeStyle(new CodeEditorStyle(false, false, new Color(0, 128, 0)));
+        JSplitPane structureSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, structurePanel, mainPanel);
+        structureSplitPane.setBorder(new EmptyBorder(0, 0, 0, 0));
+        structureSplitPane.setDividerLocation(200);
+        structureSplitPane.setContinuousLayout(true);
+        structureSplitPane.setDividerSize(3);
+        mainFrame.add(structureSplitPane);
 
-        codeEditor.setSyntaxHighlighter(xmlHighlighter);
+        JSplitPane logSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, structureSplitPane, logPanel);
+        logSplitPane.setBorder(new EmptyBorder(0, 0, 0, 0));
+        logSplitPane.setDividerLocation(400);
+        logSplitPane.setContinuousLayout(true);
+        logSplitPane.setDividerSize(3);
+        mainFrame.add(logSplitPane);
 
-        // Target Graph
-        try {
-            graph = new TargetGraph("src/main/resources/build.xml");
-        } catch (IOException | JDOMException e) {
-            e.printStackTrace();
-        }
-
-        centralPanel = new JTabbedPane();
-        centralPanel.addTab("Editor", editorPanel);
-        centralPanel.addTab("Graph", graph);
-
-        mainPanel.add(centralPanel);
-
-
-        mainFrame.add(mainPanel);
         mainFrame.setVisible(true);
     }
 
@@ -138,13 +71,18 @@ public class Main {
             while ((b = fileReader.read()) != -1)
                 builder.append((char) b);
 
-            codeEditor.setText(builder.toString());
+            mainPanel.getCodeEditor().setText(builder.toString());
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     public static void main(String[] args) {
+        /*try {
+            UIManager.setLookAndFeel("javax.swing.plaf.metal.MetalLookAndFeel");
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e) {
+            e.printStackTrace();
+        }*/
         SwingUtilities.invokeLater(new Main()::makeUI);
     }
 

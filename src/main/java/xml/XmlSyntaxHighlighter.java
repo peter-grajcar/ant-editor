@@ -1,8 +1,8 @@
 package xml;
 
-import component.CodeEditorHighlight;
-import component.CodeEditorStyle;
-import component.CodeEditorSyntaxHighlighter;
+import component.editor.CodeEditorHighlight;
+import component.editor.CodeEditorStyle;
+import component.editor.CodeEditorSyntaxHighlighter;
 
 import java.util.ArrayList;
 import java.util.Iterator;

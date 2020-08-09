@@ -1,4 +1,4 @@
-package component;
+package component.editor;
 
 /**
  * created: 10/07/2020

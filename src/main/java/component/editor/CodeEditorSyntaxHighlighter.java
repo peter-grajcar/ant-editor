@@ -1,4 +1,4 @@
-package component;
+package component.editor;
 
 /**
  * Interface for code highlighting processors.

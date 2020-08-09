@@ -1,4 +1,4 @@
-package component;
+package component.graph;
 
 import algorithm.TopoSort;
 import org.apache.tools.ant.Target;

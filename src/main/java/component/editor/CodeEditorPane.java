@@ -1,7 +1,6 @@
-package component;
+package component.editor;
 
 import javax.swing.*;
-import javax.swing.border.LineBorder;
 import javax.swing.border.MatteBorder;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
@@ -119,4 +118,6 @@ public class CodeEditorPane extends JTextPane implements DocumentListener, Caret
     public void caretUpdate(CaretEvent e) {
         // TODO:
     }
+
+
 }
