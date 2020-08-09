@@ -1,9 +1,12 @@
 import component.CodeEditorPane;
 import component.CodeEditorStyle;
+import component.TargetGraph;
+import org.jdom2.JDOMException;
 import xml.XmlSyntaxHighlighter;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.border.MatteBorder;
 import java.awt.*;
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -17,18 +20,24 @@ import java.io.IOException;
 public class Main {
 
     static final String CODE_EDITOR_CARD = "code-editor";
+    static final String TARGET_GRAPH_CARD = "target-graph";
 
     private JMenuBar menuBar;
 
     private JPanel mainPanel;
+
+    private JTabbedPane centralPanel;
+
+    private CardLayout editorCardLayout;
+    private JPanel editorPanel;
     private CodeEditorPane codeEditor;
 
-    private JPanel editorPanel;
-    private JPanel logPanel;
-    private JPanel structurePanel;
+    private TargetGraph graph;
 
+    private JPanel logPanel;
     private JTextArea log;
 
+    private JPanel structurePanel;
     private JTree structureTree;
 
     public void makeUI() {
@@ -48,10 +57,6 @@ public class Main {
         menu.add(new JMenuItem("Save"));
         menuBar.add(menu);
         mainFrame.add(menuBar, BorderLayout.NORTH);
-
-        editorPanel = new JPanel();
-        editorPanel.setLayout(new CardLayout());
-        mainPanel.add(editorPanel);
 
         logPanel = new JPanel();
         logPanel.setLayout(new BorderLayout());
@@ -76,16 +81,26 @@ public class Main {
         treeScrollPane.setBorder(new EmptyBorder(0, 0, 0 ,0));
         structurePanel.add(treeScrollPane);
 
+        editorPanel = new JPanel();
+        editorPanel.setLayout(new BorderLayout());
+
         // Xml code editor
         codeEditor = new CodeEditorPane();
+        JTextArea lineNumbers = new JTextArea("1\n2\n3");
+        codeEditor.setLineNumbers(lineNumbers);
+
         JPanel codeEditorPanel = new JPanel();
         codeEditorPanel.setLayout(new BorderLayout());
         codeEditorPanel.add(codeEditor, BorderLayout.CENTER);
+        codeEditorPanel.add(lineNumbers, BorderLayout.WEST);
+
         JScrollPane editorScrollPane = new JScrollPane(codeEditorPanel);
+        editorScrollPane.setBorder(new MatteBorder(1, 0, 0, 0, new Color(0xC0C0C0)));
         editorScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         editorScrollPane.getVerticalScrollBar().setUnitIncrement(12);
         editorScrollPane.getHorizontalScrollBar().setUnitIncrement(12);
-        editorPanel.add(editorScrollPane, CODE_EDITOR_CARD);
+
+        editorPanel.add(editorScrollPane, BorderLayout.CENTER);
 
         loadFile("src/main/resources/build.xml");
 
@@ -96,6 +111,20 @@ public class Main {
         xmlHighlighter.setAttributeStyle(new CodeEditorStyle(false, false, new Color(0, 128, 0)));
 
         codeEditor.setSyntaxHighlighter(xmlHighlighter);
+
+        // Target Graph
+        try {
+            graph = new TargetGraph("src/main/resources/build.xml");
+        } catch (IOException | JDOMException e) {
+            e.printStackTrace();
+        }
+
+        centralPanel = new JTabbedPane();
+        centralPanel.addTab("Editor", editorPanel);
+        centralPanel.addTab("Graph", graph);
+
+        mainPanel.add(centralPanel);
+
 
         mainFrame.add(mainPanel);
         mainFrame.setVisible(true);
