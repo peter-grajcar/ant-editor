@@ -1,12 +1,13 @@
-package cz.cuni.mff.java.component.editor;
+package cz.cuni.mff.java.anteditor.component.editor;
 
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import java.awt.*;
 
 /**
- * created: 10/07/2020
+ * This class represents a style of a highlighted area in the {@link CodeEditorPane}.
  *
+ * @see CodeEditorPane
  * @author Peter Grajcar
  */
 public class CodeEditorStyle {

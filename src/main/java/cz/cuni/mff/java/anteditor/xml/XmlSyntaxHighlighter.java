@@ -1,8 +1,8 @@
-package cz.cuni.mff.java.xml;
+package cz.cuni.mff.java.anteditor.xml;
 
-import cz.cuni.mff.java.component.editor.CodeEditorHighlight;
-import cz.cuni.mff.java.component.editor.CodeEditorStyle;
-import cz.cuni.mff.java.component.editor.CodeEditorSyntaxHighlighter;
+import cz.cuni.mff.java.anteditor.component.editor.CodeEditorHighlight;
+import cz.cuni.mff.java.anteditor.component.editor.CodeEditorStyle;
+import cz.cuni.mff.java.anteditor.component.editor.CodeEditorSyntaxHighlighter;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -23,6 +23,7 @@ public class XmlSyntaxHighlighter implements CodeEditorSyntaxHighlighter {
         private int index;
 
         /**
+         * Creates a new stream.
          *
          * @param str
          */
@@ -31,6 +32,7 @@ public class XmlSyntaxHighlighter implements CodeEditorSyntaxHighlighter {
         }
 
         /**
+         * Returns character at current position without moving.
          *
          * @return
          */
@@ -41,9 +43,11 @@ public class XmlSyntaxHighlighter implements CodeEditorSyntaxHighlighter {
         }
 
         /**
+         * Returns character at a position with given offset from the current position
+         * without moving.
          *
-         * @param offset
-         * @return
+         * @param offset offset from the current position
+         * @return character at offset position
          */
         public char peek(int offset) {
             if(index + offset >= str.length())
@@ -52,31 +56,34 @@ public class XmlSyntaxHighlighter implements CodeEditorSyntaxHighlighter {
         }
 
         /**
-         *
+         * Resets the index to the start.
          */
         public void reset() {
             index = 0;
         }
 
         /**
+         * Skips a certain number of characters.
          *
-         * @param offset
+         * @param offset a number of characters to skip
          */
         public void skip(int offset) {
             index = Math.min(index + offset, str.length());
         }
 
         /**
+         * Returns current position.
          *
-         * @return
+         * @return current position
          */
         public int position() {
             return index;
         }
 
         /**
+         * Moves to a new position.
          *
-         * @param position
+         * @param position absolute position.
          */
         public void move(int position) {
             this.index = position;
@@ -103,6 +110,12 @@ public class XmlSyntaxHighlighter implements CodeEditorSyntaxHighlighter {
     private CodeEditorStyle stringStyle;
     private CodeEditorStyle attributeStyle;
 
+    /**
+     * Highlights XML code.
+     *
+     * @param code Code to highlight
+     * @return a list of highlighted areas
+     */
     @Override
     public Iterable<CodeEditorHighlight> highlightCode(String code) {
         StringStream stream = new StringStream(code);
@@ -110,7 +123,7 @@ public class XmlSyntaxHighlighter implements CodeEditorSyntaxHighlighter {
         List<CodeEditorHighlight> highlights = new ArrayList<>();
 
         for(char ch : stream) {
-            if(isWhitespace(ch)) continue;
+            if(Character.isWhitespace(ch)) continue;
 
             if(ch == '<') {
                 if(stream.peek() == '!') {
@@ -120,7 +133,7 @@ public class XmlSyntaxHighlighter implements CodeEditorSyntaxHighlighter {
                     CodeEditorHighlight closeTag = processCloseTag(stream.position(), stream);
                     if(closeTag != null) highlights.add(closeTag);
                 } else {
-                    List<CodeEditorHighlight> element = processStartTag(stream.position(), stream);
+                    List<CodeEditorHighlight> element = processOpenTag(stream.position(), stream);
                     if(element != null) highlights.addAll(element);
                 }
             }
@@ -132,10 +145,11 @@ public class XmlSyntaxHighlighter implements CodeEditorSyntaxHighlighter {
     }
 
     /**
+     * Processes a XML comment. Returns null if unable to process comment.
      *
-     * @param start
-     * @param stream
-     * @return
+     * @param start start position of the {@code StringStream}
+     * @param stream string stream
+     * @return highlighted area
      */
     private CodeEditorHighlight processComment(int start, StringStream stream) {
         if(stream.peek() != '!' || stream.peek(1) != '-' || stream.peek(2) != '-')
@@ -152,12 +166,13 @@ public class XmlSyntaxHighlighter implements CodeEditorSyntaxHighlighter {
     }
 
     /**
+     * Processes a XML opening tag along with its attributes.
      *
-     * @param start
-     * @param stream
-     * @return
+     * @param start start position of the {@code StringStream}
+     * @param stream string stream
+     * @return a list of highlighted areas
      */
-    private List<CodeEditorHighlight> processStartTag(int start, StringStream stream) {
+    private List<CodeEditorHighlight> processOpenTag(int start, StringStream stream) {
         List<CodeEditorHighlight> highlights = new ArrayList<>();
 
         if(!Character.isLetter(stream.peek()) && stream.peek() != '_' && stream.peek() != ':')
@@ -203,10 +218,11 @@ public class XmlSyntaxHighlighter implements CodeEditorSyntaxHighlighter {
     }
 
     /**
+     * Processes XML closing tag.
      *
-     * @param start
-     * @param stream
-     * @return
+     * @param start start position of the {@code StringStream}
+     * @param stream string stream
+     * @return highlighted area
      */
     private CodeEditorHighlight processCloseTag(int start, StringStream stream) {
         if(stream.peek() != '/')
@@ -233,10 +249,11 @@ public class XmlSyntaxHighlighter implements CodeEditorSyntaxHighlighter {
     }
 
     /**
+     * Processes a XML string.
      *
-     * @param start
-     * @param stream
-     * @return
+     * @param start start position of the {@code StringStream}
+     * @param stream string stream
+     * @return highlighted area
      */
     private CodeEditorHighlight processString(int start, StringStream stream) {
         if(stream.peek() != '\"' && stream.peek() != '\'')
@@ -272,27 +289,20 @@ public class XmlSyntaxHighlighter implements CodeEditorSyntaxHighlighter {
     }
 
     /**
+     * Skips whitespaces in the stream.
      *
-     * @param stream
+     * @param stream string stream
      */
     private void skipWhitespace(StringStream stream) {
-        while(stream.hasNext() && isWhitespace(stream.peek()))
+        while(stream.hasNext() && Character.isWhitespace(stream.peek()))
             stream.next();
     }
 
     /**
+     * Returns true if the character can be present in XML name.
      *
-     * @param ch
-     * @return
-     */
-    private boolean isWhitespace(char ch) {
-        return ch == 0x20 || ch == 0x09 || ch == 0x0D || ch == 0x0A;
-    }
-
-    /**
-     *
-     * @param ch
-     * @return
+     * @param ch character
+     * @return whether ch can be in XML name
      */
     private boolean isNameChar(char ch) {
         return Character.isLetterOrDigit(ch) || ch == '.' || ch == '-' || ch == '_' || ch == ':';

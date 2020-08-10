@@ -1,4 +1,4 @@
-<project name="proj" default="test" basedir=".">
+<project name="proj" default="test" basedir="../../main/resources">
     <target name="test">
         <echo message="Hello" />
         <sleep seconds="1" />

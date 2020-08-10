@@ -1,20 +1,18 @@
-package cz.cuni.mff.java.component;
+package cz.cuni.mff.java.anteditor.component;
 
-import cz.cuni.mff.java.component.editor.CodeEditorPane;
-import cz.cuni.mff.java.component.editor.CodeEditorStyle;
-import cz.cuni.mff.java.component.graph.TargetGraph;
-import org.jdom2.JDOMException;
-import cz.cuni.mff.java.xml.XmlSyntaxHighlighter;
+import cz.cuni.mff.java.anteditor.component.editor.CodeEditorPane;
+import cz.cuni.mff.java.anteditor.component.editor.CodeEditorStyle;
+import cz.cuni.mff.java.anteditor.component.graph.TargetGraph;
+import cz.cuni.mff.java.anteditor.xml.XmlSyntaxHighlighter;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.MatteBorder;
 import javax.swing.event.ChangeEvent;
 import java.awt.*;
-import java.io.IOException;
 
 /**
- * created: 09/08/2020
+ * Main panel contains code editor and dependency graph.
  *
  * @author Peter Grajcar
  */
@@ -24,6 +22,9 @@ public class MainPanel extends JTabbedPane {
     private CodeEditorPane codeEditor;
     private TargetGraph graph;
 
+    /**
+     * Creates a new main panel.
+     */
     public MainPanel() {
         editorPanel = new JPanel();
         editorPanel.setLayout(new BorderLayout());
@@ -63,18 +64,20 @@ public class MainPanel extends JTabbedPane {
 
         addTab("Editor", editorPanel);
         addTab("Graph", graph);
-        addChangeListener(this::tabChangeListener);
+        addChangeListener(this::tabChangeHandler);
         setBorder(new EmptyBorder(0, 0, 0, 0));
     }
 
     /**
+     * Handles tab change event.
      *
-     * @param e Change event
+     * @param e tab hange event
      */
-    public void tabChangeListener(ChangeEvent e) {
+    public void tabChangeHandler(ChangeEvent e) {
         JTabbedPane pane = (JTabbedPane) e.getSource();
         //TODO: reload graph
     }
+
 
     public JPanel getEditorPanel() {
         return editorPanel;

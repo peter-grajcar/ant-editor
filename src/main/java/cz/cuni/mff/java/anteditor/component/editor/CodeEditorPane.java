@@ -1,21 +1,19 @@
-package cz.cuni.mff.java.component.editor;
+package cz.cuni.mff.java.anteditor.component.editor;
 
 import javax.swing.*;
 import javax.swing.border.MatteBorder;
 import javax.swing.event.*;
 import javax.swing.text.*;
 import java.awt.*;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A text cz.cuni.mff.java.component that supports code syntax highlighting.
+ * A text component that supports code syntax highlighting.
  *
  * @author Peter Grajcar
  */
-public class CodeEditorPane extends JTextPane implements DocumentListener, CaretListener {
+public class CodeEditorPane extends JTextPane implements DocumentListener {
 
     private CodeEditorSyntaxHighlighter syntaxHighlighter;
 
@@ -26,7 +24,7 @@ public class CodeEditorPane extends JTextPane implements DocumentListener, Caret
     private List<ChangeListener> changeListenerList;
 
     /**
-     *
+     * Creates a new code editor pane.
      */
     public CodeEditorPane() {
         this.changeListenerList = new ArrayList<>();
@@ -42,28 +40,10 @@ public class CodeEditorPane extends JTextPane implements DocumentListener, Caret
                 Color.BLACK,
                 new Color(0, 0, 0, 0)
         ).asAttributeSet();
-
-        addCaretListener(this);
     }
 
     /**
-     *
-     * @return
-     */
-    public CodeEditorSyntaxHighlighter getSyntaxHighlighter() {
-        return syntaxHighlighter;
-    }
-
-    /**
-     *
-     * @param syntaxHighlighter
-     */
-    public void setSyntaxHighlighter(CodeEditorSyntaxHighlighter syntaxHighlighter) {
-        this.syntaxHighlighter = syntaxHighlighter;
-    }
-
-    /**
-     *
+     * Applies the {@code syntaxHighlighter} on the editor content.
      */
     private void applyStyle() {
         getStyledDocument().setCharacterAttributes(0, this.getText().length(), defaultStyle, true);
@@ -85,7 +65,7 @@ public class CodeEditorPane extends JTextPane implements DocumentListener, Caret
     }
 
     /**
-     *
+     * Updates line numbers in {@code lineNumbers} component.
      */
     private void updateLineNumbers() {
         try {
@@ -127,18 +107,10 @@ public class CodeEditorPane extends JTextPane implements DocumentListener, Caret
             listener.stateChanged(new ChangeEvent(this));
     }
 
-    /**
-     *
-     * @return
-     */
     public JTextArea getLineNumbers() {
         return lineNumbers;
     }
 
-    /**
-     *
-     * @param lineNumbers
-     */
     public void setLineNumbers(JTextArea lineNumbers) {
         this.lineNumbers = lineNumbers;
         lineNumbers.setFont(getFont());
@@ -159,16 +131,19 @@ public class CodeEditorPane extends JTextPane implements DocumentListener, Caret
         });
     }
 
-    @Override
-    public void caretUpdate(CaretEvent e) {
-        // TODO:
-    }
-
     public void addChangeListener(ChangeListener listener) {
         changeListenerList.add(listener);
     }
 
     public void removeChangeListener(ChangeListener listener) {
         changeListenerList.remove(listener);
+    }
+
+    public CodeEditorSyntaxHighlighter getSyntaxHighlighter() {
+        return syntaxHighlighter;
+    }
+
+    public void setSyntaxHighlighter(CodeEditorSyntaxHighlighter syntaxHighlighter) {
+        this.syntaxHighlighter = syntaxHighlighter;
     }
 }

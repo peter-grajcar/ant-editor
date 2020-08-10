@@ -1,8 +1,9 @@
-package cz.cuni.mff.java.component.editor;
+package cz.cuni.mff.java.anteditor.component.editor;
 
 /**
- * created: 10/07/2020
+ * This class contains information about highlighted area in the {@link CodeEditorPane}.
  *
+ * @see CodeEditorPane
  * @author Peter Grajcar
  */
 public class CodeEditorHighlight {
@@ -11,6 +12,13 @@ public class CodeEditorHighlight {
     private int end;
     private CodeEditorStyle style;
 
+    /**
+     * Creates a new highlighted area.
+     *
+     * @param start start of the area
+     * @param end end of the area
+     * @param style highlight style
+     */
     public CodeEditorHighlight(int start, int end, CodeEditorStyle style) {
         this.start = start;
         this.end = end;

@@ -1,8 +1,9 @@
-package cz.cuni.mff.java.component.editor;
+package cz.cuni.mff.java.anteditor.component.editor;
 
 /**
  * Interface for code highlighting processors.
  *
+ * @see CodeEditorPane
  * @author Peter Grajcar
  */
 public interface CodeEditorSyntaxHighlighter {

@@ -1,13 +1,14 @@
-package cz.cuni.mff.java.component;
+package cz.cuni.mff.java.anteditor.component;
 
-import cz.cuni.mff.java.ant.AntRunner;
+import cz.cuni.mff.java.anteditor.ant.AntRunner;
 
 import javax.swing.*;
 import javax.swing.border.MatteBorder;
 import java.awt.*;
 
 /**
- * created: 09/08/2020
+ * Log panel component contains toolbar for starting and stopping Ant along with the log produced
+ * by Ant.
  *
  * @author Peter Grajcar
  */
@@ -92,7 +93,7 @@ public class LogPanel extends JPanel {
         runButton.setEnabled(false);
         stopButton.setEnabled(true);
         antRunner.setCallback(() -> {
-            runButton.setEnabled(true);
+            runButton.setEnabled(this.isEnabled());
             stopButton.setEnabled(false);
         });
 
@@ -107,11 +108,15 @@ public class LogPanel extends JPanel {
         this.filename = filename;
     }
 
+    /**
+     * This method enables disables all components in the toolbar.
+     *
+     * @param enabled enable or disable components.
+     */
     @Override
     public void setEnabled(boolean enabled) {
         super.setEnabled(enabled);
         this.runButton.setEnabled(enabled);
-        this.stopButton.setEnabled(enabled);
         this.targetSelection.setEnabled(enabled);
     }
 }

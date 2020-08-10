@@ -1,22 +1,17 @@
-package cz.cuni.mff.java.ant;
+package cz.cuni.mff.java.anteditor.ant;
 
-import cz.cuni.mff.java.event.AntLogListener;
+import cz.cuni.mff.java.anteditor.event.AntLogListener;
 import org.apache.tools.ant.DefaultLogger;
 import org.apache.tools.ant.Project;
 import org.apache.tools.ant.ProjectHelper;
 
 import javax.swing.*;
 import java.io.File;
-import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 /**
- * created: 10/08/2020
+ * A class that runs the Ant build scripts.
  *
  * @author Peter Grajcar
  */
@@ -30,6 +25,13 @@ public class AntRunner extends SwingWorker<Void, String> {
 
     private List<AntLogListener> logListenerList;
 
+    /**
+     * Creates a new {@code AntRunner} which will run the specified
+     * target of the specified script on execution.
+     *
+     * @param filename Ant build script including file path
+     * @param targetName Ant target name
+     */
     public AntRunner(String filename, String targetName) {
         this.filename = filename;
         this.targetName = targetName;
@@ -46,20 +48,10 @@ public class AntRunner extends SwingWorker<Void, String> {
         consoleLogger.setMessageOutputLevel(Project.MSG_INFO);
         project.addBuildListener(consoleLogger);
         ProjectHelper.configureProject(project, buildFile);
-        project.setUserProperty("cz.cuni.mff.java.ant.file", buildFile.getAbsolutePath());
+        project.setUserProperty("ant.file", buildFile.getAbsolutePath());
         project.init();
         ProjectHelper helper = ProjectHelper.getProjectHelper();
-        project.addReference("cz.cuni.mff.java.ant.projectHelper", helper);
-
-
-        /*ExecutorService executorService = Executors.newSingleThreadExecutor();
-        executorService.execute(() -> project.executeTarget(targetName));
-
-        while(!executorService.isTerminated()) {
-            if(Thread.currentThread().isInterrupted())
-                executorService.shutdownNow();
-        }*/
-
+        project.addReference("ant.projectHelper", helper);
 
         Thread antThread = new Thread(() -> {
             try {

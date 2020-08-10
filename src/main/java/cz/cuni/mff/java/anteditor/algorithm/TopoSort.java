@@ -1,4 +1,4 @@
-package cz.cuni.mff.java.algorithm;
+package cz.cuni.mff.java.anteditor.algorithm;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,8 +11,16 @@ import java.util.Stack;
  */
 public class TopoSort {
 
+    /**
+     * Node mark
+     */
     private enum Mark {NONE, VISITED, CLOSED}
 
+    /**
+     * Oriented graph node.
+     *
+     * @param <T> Node value type
+     */
     public static class Node<T> {
         T value;
         List<Node<T>> edges;

@@ -1,6 +1,6 @@
-package cz.cuni.mff.java.component.graph;
+package cz.cuni.mff.java.anteditor.component.graph;
 
-import cz.cuni.mff.java.algorithm.TopoSort;
+import cz.cuni.mff.java.anteditor.algorithm.TopoSort;
 import org.jdom2.Attribute;
 import org.jdom2.Document;
 import org.jdom2.Element;
@@ -11,7 +11,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
@@ -26,12 +25,14 @@ import java.util.Map;
  */
 public class TargetGraph extends JPanel implements MouseMotionListener {
 
+    /**
+     * A class representing a single Ant target dependency graph node.
+     */
     private static class TargetNode {
         String name;
         String[] depends;
         int x, y;
         int depth;
-        int dependentCount;
 
         public TargetNode(String name, String[] depends) {
             this.name = name;
@@ -48,11 +49,20 @@ public class TargetGraph extends JPanel implements MouseMotionListener {
     private TopoSort.Node<TargetNode>[] targets;
     private Exception exception;
 
+    /**
+     * Creates a new Ant target dependency graph component.
+     */
     public TargetGraph() {
         addMouseMotionListener(this);
         setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
     }
 
+    /**
+     * Loads and processes Ant build script, creates nodes of the
+     * dependency graph and sets their positions.
+     *
+     * @param is Ant build script input
+     */
     public void load(InputStream is) {
         exception = null;
         try {
@@ -203,6 +213,11 @@ public class TargetGraph extends JPanel implements MouseMotionListener {
         prevY = e.getY();
     }
 
+    /**
+     * Returns an exception from the last {@link #load(InputStream)} call
+     *
+     * @return exception.
+     */
     public Exception getException() {
         return exception;
     }

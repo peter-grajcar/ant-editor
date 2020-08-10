@@ -1,4 +1,4 @@
-package cz.cuni.mff.java;
+package cz.cuni.mff.java.anteditor;
 
 import javax.swing.*;
 import java.io.*;
