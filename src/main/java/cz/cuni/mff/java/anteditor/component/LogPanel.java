@@ -1,10 +1,19 @@
 package cz.cuni.mff.java.anteditor.component;
 
 import cz.cuni.mff.java.anteditor.ant.AntRunner;
+import org.apache.tools.ant.taskdefs.optional.windows.Attrib;
+import org.jdom2.Attribute;
+import org.jdom2.Document;
+import org.jdom2.Element;
+import org.jdom2.JDOMException;
+import org.jdom2.input.SAXBuilder;
+import org.w3c.dom.Attr;
 
 import javax.swing.*;
 import javax.swing.border.MatteBorder;
 import java.awt.*;
+import java.io.IOException;
+import java.util.List;
 
 /**
  * Log panel component contains toolbar for starting and stopping Ant along with the log produced
@@ -35,12 +44,11 @@ public class LogPanel extends JPanel {
         toolBar.setFloatable(false);
         add(toolBar, BorderLayout.PAGE_START);
 
-        toolBar.add(new JLabel("Ant Target:"));
+        toolBar.add(new JLabel("Target:"));
 
         toolBar.add(Box.createRigidArea(new Dimension(10, 0)));
 
         targetSelection = new JComboBox<>();
-        targetSelection.addItem("test");
         targetSelection.setMaximumSize(new Dimension(200, 100));
         toolBar.add(targetSelection);
 
@@ -77,13 +85,35 @@ public class LogPanel extends JPanel {
     }
 
     /**
+     *
+     */
+    public void refresh() {
+        targetSelection.removeAllItems();
+        try {
+            SAXBuilder builder = new SAXBuilder();
+            Document antBuildXml = builder.build(filename);
+
+            Element root = antBuildXml.getRootElement();
+            List<Element> elements = root.getChildren("target");
+
+            for(Element element : elements) {
+                Attribute targetName = element.getAttribute("name");
+                if(targetName != null)
+                    targetSelection.addItem(targetName.getValue());
+            }
+        } catch (IOException | JDOMException e) {
+            log.append(e.getMessage() + System.lineSeparator());
+        }
+    }
+
+    /**
      * Executes and build script in the background via AntRunner.
      */
     private void runAnt() {
         String targetName = (String) targetSelection.getSelectedItem();
         AntRunner antRunner = new AntRunner(filename, targetName);
         antRunner.addAntLogListener(msg -> {
-            log.append(msg + "\n");
+            log.append(msg + System.lineSeparator());
         });
 
         stopButton.addActionListener((e) -> {

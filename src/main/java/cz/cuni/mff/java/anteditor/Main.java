@@ -108,18 +108,20 @@ public class Main {
      */
     private void loadFile(String filename) {
         try(FileReader fileReader = new FileReader(filename)) {
-            this.filename = filename;
-            mainFrame.setTitle("Ant Editor - " + filename);
-
             StringBuilder builder = new StringBuilder();
             int b;
             while ((b = fileReader.read()) != -1)
                 builder.append((char) b);
 
             mainPanel.getCodeEditor().setText(builder.toString());
-            saved = true;
             logPanel.setEnabled(true);
             logPanel.setFilename(filename);
+            logPanel.refresh();
+
+            mainFrame.setTitle("Ant Editor - " + filename);
+
+            saved = true;
+            this.filename = filename;
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -132,7 +134,7 @@ public class Main {
         if(filename == null)
             mainFrame.setTitle("Ant Editor - untitled *");
         else
-            mainFrame.setTitle("Ant Editor - " + filename + " *");
+            mainFrame.setTitle("Ant Editor - " + filename + (saved ? "" : " *"));
         saved = false;
     }
 
@@ -153,6 +155,7 @@ public class Main {
                     mainFrame.setTitle("Ant Editor - " + filename);
                     logPanel.setEnabled(true);
                     logPanel.setFilename(filename);
+                    logPanel.refresh();
                     saved = true;
                 }
         );
@@ -173,6 +176,7 @@ public class Main {
                     return;
             }
         }
+        mainFrame.setTitle("Ant Editor - untitled *");
         filename = null;
         mainPanel.getCodeEditor().setText(ANT_TEMPLATE);
         saved = false;

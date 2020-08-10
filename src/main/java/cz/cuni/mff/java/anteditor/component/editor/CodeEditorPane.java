@@ -74,7 +74,7 @@ public class CodeEditorPane extends JTextPane implements DocumentListener {
                     .lines()
                     .count();
             for(long i = 0; i < lineNum; ++i)
-                builder.append(i + 1).append('\n');
+                builder.append(i + 1).append(System.lineSeparator());
             lineNumbers.setText(builder.toString());
         } catch (BadLocationException badLocationException) {
             badLocationException.printStackTrace();
@@ -103,8 +103,7 @@ public class CodeEditorPane extends JTextPane implements DocumentListener {
 
     @Override
     public void changedUpdate(DocumentEvent e) {
-        for(ChangeListener listener : changeListenerList)
-            listener.stateChanged(new ChangeEvent(this));
+
     }
 
     public JTextArea getLineNumbers() {
