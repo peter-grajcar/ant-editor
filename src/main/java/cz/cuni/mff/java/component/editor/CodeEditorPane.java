@@ -2,12 +2,13 @@ package cz.cuni.mff.java.component.editor;
 
 import javax.swing.*;
 import javax.swing.border.MatteBorder;
-import javax.swing.event.CaretEvent;
-import javax.swing.event.CaretListener;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
+import javax.swing.event.*;
 import javax.swing.text.*;
 import java.awt.*;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A text cz.cuni.mff.java.component that supports code syntax highlighting.
@@ -22,10 +23,13 @@ public class CodeEditorPane extends JTextPane implements DocumentListener, Caret
 
     private JTextArea lineNumbers;
 
+    private List<ChangeListener> changeListenerList;
+
     /**
      *
      */
     public CodeEditorPane() {
+        this.changeListenerList = new ArrayList<>();
         this.getDocument().addDocumentListener(this);
         this.setEditable(true);
 
@@ -102,6 +106,9 @@ public class CodeEditorPane extends JTextPane implements DocumentListener, Caret
         SwingUtilities.invokeLater(this::applyStyle);
         if(lineNumbers != null)
             updateLineNumbers();
+
+        for(ChangeListener listener : changeListenerList)
+            listener.stateChanged(new ChangeEvent(this));
     }
 
     @Override
@@ -109,11 +116,15 @@ public class CodeEditorPane extends JTextPane implements DocumentListener, Caret
         SwingUtilities.invokeLater(this::applyStyle);
         if(lineNumbers != null)
             updateLineNumbers();
+
+        for(ChangeListener listener : changeListenerList)
+            listener.stateChanged(new ChangeEvent(this));
     }
 
     @Override
     public void changedUpdate(DocumentEvent e) {
-
+        for(ChangeListener listener : changeListenerList)
+            listener.stateChanged(new ChangeEvent(this));
     }
 
     /**
@@ -134,7 +145,7 @@ public class CodeEditorPane extends JTextPane implements DocumentListener, Caret
         lineNumbers.setEditable(false);
         lineNumbers.setBackground(new Color(0xECECEC));
         lineNumbers.setBorder(new MatteBorder(0, 0, 0, 1, new Color(0xC0C0C0)));
-        lineNumbers.setMargin(new Insets(0, 0, 0, 0));
+        lineNumbers.setMargin(new Insets(0, 2, 0, 0));
         lineNumbers.setPreferredSize(new Dimension(48, 1));
         lineNumbers.setForeground(new Color(0xA9A9A9));
 
@@ -153,5 +164,11 @@ public class CodeEditorPane extends JTextPane implements DocumentListener, Caret
         // TODO:
     }
 
+    public void addChangeListener(ChangeListener listener) {
+        changeListenerList.add(listener);
+    }
 
+    public void removeChangeListener(ChangeListener listener) {
+        changeListenerList.remove(listener);
+    }
 }

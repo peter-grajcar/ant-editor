@@ -11,7 +11,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -44,17 +46,23 @@ public class TargetGraph extends JPanel implements MouseMotionListener {
 
     private Document antBuildXml;
     private TopoSort.Node<TargetNode>[] targets;
+    private Exception exception;
 
-    public TargetGraph(String filename) throws IOException, JDOMException {
-        load(filename);
-
+    public TargetGraph() {
         addMouseMotionListener(this);
         setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
     }
 
-    public void load(String filename) throws IOException, JDOMException {
-        SAXBuilder builder = new SAXBuilder();
-        antBuildXml = builder.build(filename);
+    public void load(InputStream is) {
+        exception = null;
+        try {
+            SAXBuilder builder = new SAXBuilder();
+            antBuildXml = builder.build(is);
+        } catch (IOException | JDOMException e) {
+            targets = new TopoSort.Node[0];
+            exception = e;
+            return;
+        }
 
         Element root = antBuildXml.getRootElement();
         List<Element> elements = root.getChildren("target");
@@ -80,40 +88,30 @@ public class TargetGraph extends JPanel implements MouseMotionListener {
             targetMap.put(name, node);
         }
 
-
+        // Make name-target node map
+        int maxDepth = 0;
         for (TopoSort.Node<TargetNode> node : targets) {
             for (String depend : node.getValue().depends) {
                 TopoSort.Node<TargetNode> dependNode = targetMap.get(depend);
                 node.getEdges().add(dependNode);
+
                 node.getValue().depth = Math.max(node.getValue().depth, dependNode.getValue().depth + 1);
+                maxDepth = Math.max(maxDepth, node.getValue().depth);
             }
         }
 
         targets = TopoSort.sort(targets);
 
-        int offsetX = 20;
-        int offsetY = 10;
-        int height = 50;
+        int offsetX = 30;
+        int offsetY = 30;
+        int[] levels = new int[maxDepth + 1];
 
+        // Compute position of each node
         for (TopoSort.Node<TargetNode> node : targets) {
-            System.out.println(node.getValue().name + ", " + node.getValue().depth);
-
-            if (node.getEdges().size() == 0) {
-                node.getValue().y = height;
-                height += nodeHeight + offsetY;
-            }
-
-            node.getValue().x = offsetX;
-            for (TopoSort.Node<TargetNode> parent : node.getEdges()) {
-                int newX = parent.getValue().x + nodeWidth + offsetX;
-                if(newX > node.getValue().x)
-                    node.getValue().x = newX;
-
-                node.getValue().y = parent.getValue().y + parent.getValue().dependentCount * (nodeHeight + offsetY);
-
-                ++parent.getValue().dependentCount;
-                height = Math.max(height, parent.getValue().dependentCount * (nodeHeight + offsetY));
-            }
+            int depth = node.getValue().depth;
+            node.getValue().x = depth * (offsetX + nodeWidth);
+            node.getValue().y = levels[depth]  * (offsetY + nodeHeight);
+            ++levels[depth];
         }
     }
 
@@ -122,23 +120,55 @@ public class TargetGraph extends JPanel implements MouseMotionListener {
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D) g;
 
+        if(exception != null) {
+            g2.setColor(Color.RED);
+            g2.drawString(exception.getMessage(), 50, 50);
+            return;
+        }
+
         for (TopoSort.Node<TargetNode> node : targets) {
+            int x = node.getValue().x;
+            int y = node.getValue().y;
+
             g2.setColor(Color.BLACK);
             for (TopoSort.Node<TargetNode> parent : node.getEdges()) {
+                float dx = parent.getValue().x - x;
+                float dy = parent.getValue().y - y;
+                float len = (float) Math.sqrt(dx * dx + dy * dy);
+
+                float vx = dx * 10 / len;
+                float vy = dy * 10 / len;
+                float ux = -vy / 2;
+                float uy = vx / 2;
+
+                float midx = x + nodeWidth / 2 + positionX + dx / 2;
+                float midy = y + positionY + dy / 2;
+
+                Polygon polygon = new Polygon();
+                polygon.addPoint((int) (midx + vx), (int) (midy + vy));
+                polygon.addPoint((int) (midx + ux), (int) (midy + uy));
+                polygon.addPoint((int) (midx - ux), (int) (midy - uy));
+                g2.fillPolygon(polygon);
+
+
                 g2.drawLine(
-                        node.getValue().x + nodeWidth / 2 + positionX,
-                        node.getValue().y + positionY,
+                        x + nodeWidth / 2 + positionX,
+                        y + positionY,
                         parent.getValue().x + nodeWidth / 2 + positionX,
                         parent.getValue().y + positionY
                 );
             }
         }
 
+
         for (TopoSort.Node<TargetNode> node : targets) {
+            int x = node.getValue().x;
+            int y = node.getValue().y;
+
             g2.setColor(Color.WHITE);
             g2.fillRect(
-                    node.getValue().x + positionX,
-                    node.getValue().y - nodeHeight / 2 + positionY,
+                    x + positionX,
+                    y - nodeHeight / 2 + positionY,
                     nodeWidth,
                     nodeHeight
             );
@@ -146,10 +176,11 @@ public class TargetGraph extends JPanel implements MouseMotionListener {
             g2.setColor(Color.BLACK);
             g2.drawString(
                     node.getValue().name,
-                    node.getValue().x + 10 + positionX,
-                    node.getValue().y + positionY
+                    x + 10 + positionX,
+                    y + positionY
             );
         }
+
     }
 
     private int prevX = -1;
@@ -172,4 +203,7 @@ public class TargetGraph extends JPanel implements MouseMotionListener {
         prevY = e.getY();
     }
 
+    public Exception getException() {
+        return exception;
+    }
 }

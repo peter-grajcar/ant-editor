@@ -118,7 +118,7 @@ public class XmlSyntaxHighlighter implements CodeEditorSyntaxHighlighter {
                     if(comment != null) highlights.add(comment);
                 } else if(stream.peek() == '/') {
                     CodeEditorHighlight closeTag = processCloseTag(stream.position(), stream);
-                    highlights.add(closeTag);
+                    if(closeTag != null) highlights.add(closeTag);
                 } else {
                     List<CodeEditorHighlight> element = processStartTag(stream.position(), stream);
                     if(element != null) highlights.addAll(element);

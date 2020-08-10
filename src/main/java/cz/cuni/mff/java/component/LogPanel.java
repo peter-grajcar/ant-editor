@@ -13,6 +13,8 @@ import java.awt.*;
  */
 public class LogPanel extends JPanel {
 
+    private String filename;
+
     private JTextArea log;
     private JButton runButton;
     private JButton stopButton;
@@ -77,7 +79,8 @@ public class LogPanel extends JPanel {
      * Executes and build script in the background via AntRunner.
      */
     private void runAnt() {
-        AntRunner antRunner = new AntRunner((String) targetSelection.getSelectedItem());
+        String targetName = (String) targetSelection.getSelectedItem();
+        AntRunner antRunner = new AntRunner(filename, targetName);
         antRunner.addAntLogListener(msg -> {
             log.append(msg + "\n");
         });
@@ -93,10 +96,22 @@ public class LogPanel extends JPanel {
             stopButton.setEnabled(false);
         });
 
-        log.append("Executing \"build.xml\"...");
+        log.append("----------------------------------------------------------------------\n");
+        log.append("executing \"" + filename  + "\" target \"" + targetName + "\"...");
 
         antRunner.execute();
 
     }
 
+    public void setFilename(String filename) {
+        this.filename = filename;
+    }
+
+    @Override
+    public void setEnabled(boolean enabled) {
+        super.setEnabled(enabled);
+        this.runButton.setEnabled(enabled);
+        this.stopButton.setEnabled(enabled);
+        this.targetSelection.setEnabled(enabled);
+    }
 }

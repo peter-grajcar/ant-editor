@@ -59,11 +59,7 @@ public class MainPanel extends JTabbedPane {
         codeEditor.setSyntaxHighlighter(xmlHighlighter);
 
         // Target Graph
-        try {
-            graph = new TargetGraph("src/main/resources/build.xml");
-        } catch (IOException | JDOMException e) {
-            e.printStackTrace();
-        }
+        graph = new TargetGraph();
 
         addTab("Editor", editorPanel);
         addTab("Graph", graph);

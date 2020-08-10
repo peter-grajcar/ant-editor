@@ -7,6 +7,7 @@ import org.apache.tools.ant.ProjectHelper;
 
 import javax.swing.*;
 import java.io.File;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -21,20 +22,23 @@ import java.util.concurrent.TimeUnit;
  */
 public class AntRunner extends SwingWorker<Void, String> {
 
+    private String filename;
+
     private String targetName;
 
     private Runnable callback;
 
     private List<AntLogListener> logListenerList;
 
-    public AntRunner(String targetName) {
+    public AntRunner(String filename, String targetName) {
+        this.filename = filename;
         this.targetName = targetName;
         this.logListenerList = new ArrayList<>();
     }
 
     @Override
     protected Void doInBackground() throws Exception {
-        File buildFile = new File("src/main/resources/build_2.xml");
+        File buildFile = new File(filename);
         Project project = new Project();
         DefaultLogger consoleLogger = new DispatchLogger();
         consoleLogger.setErrorPrintStream(System.err);
@@ -57,7 +61,13 @@ public class AntRunner extends SwingWorker<Void, String> {
         }*/
 
 
-        Thread antThread = new Thread(() -> project.executeTarget(targetName));
+        Thread antThread = new Thread(() -> {
+            try {
+                project.executeTarget(targetName);
+            } catch (Exception e) {
+                publish(e.getMessage());
+            }
+        });
         antThread.start();
 
         while(antThread.isAlive()) {
