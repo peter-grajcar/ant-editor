@@ -1,4 +1,6 @@
-package component;
+package cz.cuni.mff.java.component;
+
+import cz.cuni.mff.java.ant.AntRunner;
 
 import javax.swing.*;
 import javax.swing.border.MatteBorder;
@@ -12,6 +14,8 @@ import java.awt.*;
 public class LogPanel extends JPanel {
 
     private JTextArea log;
+    private JButton runButton;
+    private JButton stopButton;
 
     public LogPanel() {
         setLayout(new BorderLayout());
@@ -33,16 +37,25 @@ public class LogPanel extends JPanel {
 
         toolBar.add(Box.createRigidArea(new Dimension(10, 0)));
 
-        JButton runButton = new JButton("Run");
+
+        runButton = new JButton("Run");
+        runButton.addActionListener(e -> runAnt());
         runButton.setMaximumSize(new Dimension(50, 100));
         toolBar.add(runButton);
 
         toolBar.add(Box.createRigidArea(new Dimension(10, 0)));
 
-        JButton stopButton = new JButton("Stop");
+        stopButton = new JButton("Stop");
         stopButton.setEnabled(false);
         stopButton.setMaximumSize(new Dimension(50, 100));
         toolBar.add(stopButton);
+
+        toolBar.add(Box.createRigidArea(new Dimension(10, 0)));
+
+        JButton clearButton = new JButton("Clear");
+        clearButton.addActionListener(e -> log.setText(""));
+        clearButton.setMaximumSize(new Dimension(50, 100));
+        toolBar.add(clearButton);
 
 
         log = new JTextArea();
@@ -54,4 +67,24 @@ public class LogPanel extends JPanel {
         logScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         add(logScrollPane, BorderLayout.CENTER);
     }
+
+
+    private void runAnt() {
+        AntRunner antRunner = new AntRunner();
+        antRunner.setTargetName("test");
+        antRunner.addAntLogListener(msg -> {
+            log.append(msg + "\n");
+        });
+
+        runButton.setEnabled(false);
+        stopButton.setEnabled(true);
+        antRunner.setCallback(() -> {
+            runButton.setEnabled(true);
+            stopButton.setEnabled(false);
+        });
+
+        antRunner.execute();
+
+    }
+
 }

@@ -1,4 +1,4 @@
-package component.editor;
+package cz.cuni.mff.java.component.editor;
 
 import javax.swing.*;
 import javax.swing.border.MatteBorder;
@@ -10,7 +10,7 @@ import javax.swing.text.*;
 import java.awt.*;
 
 /**
- * A text component that supports code syntax highlighting.
+ * A text cz.cuni.mff.java.component that supports code syntax highlighting.
  *
  * @author Peter Grajcar
  */

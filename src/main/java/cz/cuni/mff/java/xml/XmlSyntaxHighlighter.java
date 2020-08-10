@@ -1,8 +1,8 @@
-package xml;
+package cz.cuni.mff.java.xml;
 
-import component.editor.CodeEditorHighlight;
-import component.editor.CodeEditorStyle;
-import component.editor.CodeEditorSyntaxHighlighter;
+import cz.cuni.mff.java.component.editor.CodeEditorHighlight;
+import cz.cuni.mff.java.component.editor.CodeEditorStyle;
+import cz.cuni.mff.java.component.editor.CodeEditorSyntaxHighlighter;
 
 import java.util.ArrayList;
 import java.util.Iterator;

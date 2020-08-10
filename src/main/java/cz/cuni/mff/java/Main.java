@@ -1,12 +1,11 @@
-import component.LogPanel;
-import component.MainPanel;
-import component.StructurePanel;
-import component.editor.CodeEditorPane;
-import component.graph.TargetGraph;
+package cz.cuni.mff.java;
+
+import cz.cuni.mff.java.component.LogPanel;
+import cz.cuni.mff.java.component.MainPanel;
+import cz.cuni.mff.java.component.StructurePanel;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-import javax.swing.border.MatteBorder;
 import java.awt.*;
 import java.io.FileReader;
 import java.io.IOException;
@@ -54,6 +53,7 @@ public class Main {
         mainFrame.add(structureSplitPane);
 
         JSplitPane logSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, structureSplitPane, logPanel);
+        logSplitPane.setBackground(Color.LIGHT_GRAY);
         logSplitPane.setBorder(new EmptyBorder(0, 0, 0, 0));
         logSplitPane.setDividerLocation(400);
         logSplitPane.setContinuousLayout(true);
@@ -83,6 +83,7 @@ public class Main {
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e) {
             e.printStackTrace();
         }*/
+
         SwingUtilities.invokeLater(new Main()::makeUI);
     }
 

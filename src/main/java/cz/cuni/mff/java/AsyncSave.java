@@ -1,3 +1,5 @@
+package cz.cuni.mff.java;
+
 import javax.swing.*;
 import java.io.*;
 

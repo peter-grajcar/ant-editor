@@ -1,16 +1,15 @@
-package component;
+package cz.cuni.mff.java.component;
 
-import component.editor.CodeEditorPane;
-import component.editor.CodeEditorStyle;
-import component.graph.TargetGraph;
+import cz.cuni.mff.java.component.editor.CodeEditorPane;
+import cz.cuni.mff.java.component.editor.CodeEditorStyle;
+import cz.cuni.mff.java.component.graph.TargetGraph;
 import org.jdom2.JDOMException;
-import xml.XmlSyntaxHighlighter;
+import cz.cuni.mff.java.xml.XmlSyntaxHighlighter;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.MatteBorder;
 import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.io.IOException;
 
@@ -74,7 +73,7 @@ public class MainPanel extends JTabbedPane {
 
     /**
      *
-     * @param e Change event
+     * @param e Change cz.cuni.mff.java.event
      */
     public void tabChangeListener(ChangeEvent e) {
         JTabbedPane pane = (JTabbedPane) e.getSource();

@@ -1,6 +1,5 @@
-package component.editor;
+package cz.cuni.mff.java.component.editor;
 
-import javax.swing.text.AttributeSet;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import java.awt.*;

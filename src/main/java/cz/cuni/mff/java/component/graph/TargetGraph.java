@@ -1,28 +1,23 @@
-package component.graph;
+package cz.cuni.mff.java.component.graph;
 
-import algorithm.TopoSort;
-import org.apache.tools.ant.Target;
+import cz.cuni.mff.java.algorithm.TopoSort;
 import org.jdom2.Attribute;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.JDOMException;
 import org.jdom2.input.SAXBuilder;
-import org.xml.sax.SAXException;
 
 import javax.swing.*;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 /**
- * Custom Swing component which visualises Ant targets as an oriented
+ * Custom Swing cz.cuni.mff.java.component which visualises Ant targets as an oriented
  * graph.
  *
  * @author Peter Grajcar

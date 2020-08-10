@@ -1,4 +1,4 @@
-package component.editor;
+package cz.cuni.mff.java.component.editor;
 
 /**
  * created: 10/07/2020

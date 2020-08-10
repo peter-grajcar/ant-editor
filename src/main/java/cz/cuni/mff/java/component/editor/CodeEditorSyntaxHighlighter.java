@@ -1,4 +1,4 @@
-package component.editor;
+package cz.cuni.mff.java.component.editor;
 
 /**
  * Interface for code highlighting processors.

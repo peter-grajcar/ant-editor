@@ -1,4 +1,4 @@
-package algorithm;
+package cz.cuni.mff.java.algorithm;
 
 import java.util.ArrayList;
 import java.util.List;

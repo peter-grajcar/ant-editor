@@ -1,7 +1,8 @@
-package component;
+package cz.cuni.mff.java.component;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.border.MatteBorder;
 import java.awt.*;
 
 /**
@@ -15,6 +16,7 @@ public class StructurePanel extends JPanel {
 
     public StructurePanel() {
         setLayout(new BorderLayout());
+        setBorder(new MatteBorder(0, 0, 0, 1, Color.LIGHT_GRAY));
         setPreferredSize(new Dimension(200, 400));
 
         structureTree = new JTree();
