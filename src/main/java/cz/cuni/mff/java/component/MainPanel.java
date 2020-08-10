@@ -73,11 +73,11 @@ public class MainPanel extends JTabbedPane {
 
     /**
      *
-     * @param e Change cz.cuni.mff.java.event
+     * @param e Change event
      */
     public void tabChangeListener(ChangeEvent e) {
         JTabbedPane pane = (JTabbedPane) e.getSource();
-        System.out.println(pane.getSelectedIndex());
+        //TODO: reload graph
     }
 
     public JPanel getEditorPanel() {

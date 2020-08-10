@@ -1,7 +1,11 @@
 <project name="proj" default="test" basedir=".">
     <target name="test">
         <echo message="Hello" />
-        <sleep seconds="4" />
+        <sleep seconds="1" />
         <echo message="World" />
+        <sleep seconds="1" />
+        <echo message="!" />
+        <echo message="Not" />
+        <echo message="Good" />
     </target>
 </project>

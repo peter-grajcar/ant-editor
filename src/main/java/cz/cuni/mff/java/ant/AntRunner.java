@@ -9,6 +9,10 @@ import javax.swing.*;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * created: 10/08/2020
@@ -23,7 +27,8 @@ public class AntRunner extends SwingWorker<Void, String> {
 
     private List<AntLogListener> logListenerList;
 
-    public AntRunner() {
+    public AntRunner(String targetName) {
+        this.targetName = targetName;
         this.logListenerList = new ArrayList<>();
     }
 
@@ -41,7 +46,26 @@ public class AntRunner extends SwingWorker<Void, String> {
         project.init();
         ProjectHelper helper = ProjectHelper.getProjectHelper();
         project.addReference("cz.cuni.mff.java.ant.projectHelper", helper);
-        project.executeTarget(targetName);
+
+
+        /*ExecutorService executorService = Executors.newSingleThreadExecutor();
+        executorService.execute(() -> project.executeTarget(targetName));
+
+        while(!executorService.isTerminated()) {
+            if(Thread.currentThread().isInterrupted())
+                executorService.shutdownNow();
+        }*/
+
+
+        Thread antThread = new Thread(() -> project.executeTarget(targetName));
+        antThread.start();
+
+        while(antThread.isAlive()) {
+            if(Thread.currentThread().isInterrupted())
+                antThread.interrupt();
+        }
+
+
         return null;
     }
 
@@ -79,9 +103,5 @@ public class AntRunner extends SwingWorker<Void, String> {
 
     public void setCallback(Runnable callback) {
         this.callback = callback;
-    }
-
-    public void setTargetName(String targetName) {
-        this.targetName = targetName;
     }
 }

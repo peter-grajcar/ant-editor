@@ -16,7 +16,12 @@ public class LogPanel extends JPanel {
     private JTextArea log;
     private JButton runButton;
     private JButton stopButton;
+    JComboBox<String> targetSelection;
 
+    /**
+     * Constructs new log panel. Log panel contains toolbar for running Ant script and also
+     * a log produced by the Ant scipts.
+     */
     public LogPanel() {
         setLayout(new BorderLayout());
         setPreferredSize(new Dimension(400, 150));
@@ -31,12 +36,12 @@ public class LogPanel extends JPanel {
 
         toolBar.add(Box.createRigidArea(new Dimension(10, 0)));
 
-        JComboBox<String> targetSelection = new JComboBox<>();
+        targetSelection = new JComboBox<>();
+        targetSelection.addItem("test");
         targetSelection.setMaximumSize(new Dimension(200, 100));
         toolBar.add(targetSelection);
 
         toolBar.add(Box.createRigidArea(new Dimension(10, 0)));
-
 
         runButton = new JButton("Run");
         runButton.addActionListener(e -> runAnt());
@@ -61,19 +66,24 @@ public class LogPanel extends JPanel {
         log = new JTextArea();
         log.setEditable(false);
         log.setFont(new Font("Courier New", Font.PLAIN, 12));
-        log.setText("> test");
+        log.setMargin(new Insets(5, 10, 5, 10));
         JScrollPane logScrollPane = new JScrollPane(log);
         logScrollPane.setBorder(new MatteBorder(1, 0, 0, 0, Color.LIGHT_GRAY));
         logScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         add(logScrollPane, BorderLayout.CENTER);
     }
 
-
+    /**
+     * Executes and build script in the background via AntRunner.
+     */
     private void runAnt() {
-        AntRunner antRunner = new AntRunner();
-        antRunner.setTargetName("test");
+        AntRunner antRunner = new AntRunner((String) targetSelection.getSelectedItem());
         antRunner.addAntLogListener(msg -> {
             log.append(msg + "\n");
+        });
+
+        stopButton.addActionListener((e) -> {
+            antRunner.cancel(true);
         });
 
         runButton.setEnabled(false);
@@ -82,6 +92,8 @@ public class LogPanel extends JPanel {
             runButton.setEnabled(true);
             stopButton.setEnabled(false);
         });
+
+        log.append("Executing \"build.xml\"...");
 
         antRunner.execute();
 

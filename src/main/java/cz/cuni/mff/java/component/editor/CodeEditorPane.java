@@ -22,6 +22,9 @@ public class CodeEditorPane extends JTextPane implements DocumentListener, Caret
 
     private JTextArea lineNumbers;
 
+    /**
+     *
+     */
     public CodeEditorPane() {
         this.getDocument().addDocumentListener(this);
         this.setEditable(true);
@@ -39,14 +42,25 @@ public class CodeEditorPane extends JTextPane implements DocumentListener, Caret
         addCaretListener(this);
     }
 
+    /**
+     *
+     * @return
+     */
     public CodeEditorSyntaxHighlighter getSyntaxHighlighter() {
         return syntaxHighlighter;
     }
 
+    /**
+     *
+     * @param syntaxHighlighter
+     */
     public void setSyntaxHighlighter(CodeEditorSyntaxHighlighter syntaxHighlighter) {
         this.syntaxHighlighter = syntaxHighlighter;
     }
 
+    /**
+     *
+     */
     private void applyStyle() {
         getStyledDocument().setCharacterAttributes(0, this.getText().length(), defaultStyle, true);
 
@@ -66,13 +80,9 @@ public class CodeEditorPane extends JTextPane implements DocumentListener, Caret
         }
     }
 
-    @Override
-    public void insertUpdate(DocumentEvent e) {
-        SwingUtilities.invokeLater(this::applyStyle);
-        if(lineNumbers != null)
-            updateLineNumbers();
-    }
-
+    /**
+     *
+     */
     private void updateLineNumbers() {
         try {
             StringBuilder builder = new StringBuilder();
@@ -88,6 +98,13 @@ public class CodeEditorPane extends JTextPane implements DocumentListener, Caret
     }
 
     @Override
+    public void insertUpdate(DocumentEvent e) {
+        SwingUtilities.invokeLater(this::applyStyle);
+        if(lineNumbers != null)
+            updateLineNumbers();
+    }
+
+    @Override
     public void removeUpdate(DocumentEvent e) {
         SwingUtilities.invokeLater(this::applyStyle);
         if(lineNumbers != null)
@@ -99,10 +116,18 @@ public class CodeEditorPane extends JTextPane implements DocumentListener, Caret
 
     }
 
+    /**
+     *
+     * @return
+     */
     public JTextArea getLineNumbers() {
         return lineNumbers;
     }
 
+    /**
+     *
+     * @param lineNumbers
+     */
     public void setLineNumbers(JTextArea lineNumbers) {
         this.lineNumbers = lineNumbers;
         lineNumbers.setFont(getFont());
@@ -112,6 +137,15 @@ public class CodeEditorPane extends JTextPane implements DocumentListener, Caret
         lineNumbers.setMargin(new Insets(0, 0, 0, 0));
         lineNumbers.setPreferredSize(new Dimension(48, 1));
         lineNumbers.setForeground(new Color(0xA9A9A9));
+
+        // Disables text selection
+        lineNumbers.setHighlighter(null);
+        lineNumbers.setCaret(new DefaultCaret() {
+            @Override
+            public int getMark() {
+                return getDot();
+            }
+        });
     }
 
     @Override
