@@ -5,9 +5,11 @@
 The project can be build using Maven. `mvn package` will create an executable
 jar file.
 
+Javadoc documentation can be generated with `mvn javadoc:javadoc` command.
+
 ## Documentation
 
-[link to javadoc documentation](http://www.ms.mff.cuni.cz/~grajcarp/ant-editor)
+[link to javadoc documentation](http://www.ms.mff.cuni.cz/~grajcarp/ant-editor/apidocs)
 
 ## User manual
 
