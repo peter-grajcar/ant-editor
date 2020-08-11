@@ -176,10 +176,8 @@ public class Main {
         filename = null;
         saved = false;
 
-        File template = new File(
-                getClass().getClassLoader().getResource("build-template.xml").getFile()
-        );
-        try(FileReader reader = new FileReader(template)) {
+        try(InputStream is = getClass().getClassLoader().getResourceAsStream("build-template.xml");
+            InputStreamReader reader = new InputStreamReader(is)) {
             StringBuilder builder = new StringBuilder();
             int b;
             while((b = reader.read()) != -1)
