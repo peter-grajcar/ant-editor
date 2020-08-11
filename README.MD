@@ -9,9 +9,9 @@ Javadoc documentation can be generated with `mvn javadoc:javadoc` command.
 
 ## Documentation
 
-[link to javadoc documentation](http://www.ms.mff.cuni.cz/~grajcarp/ant-editor/apidocs)
+<a target="_blank" href="http://www.ms.mff.cuni.cz/~grajcarp/ant-editor/apidocs">link to javadoc documentation</a>
 
-## User manual
+## User Manual
 
 You can open the file by pressing `Ctrl+O` or by selecting `File > Open` in
 the menu.
