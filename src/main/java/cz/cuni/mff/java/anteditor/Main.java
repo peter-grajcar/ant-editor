@@ -11,6 +11,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.io.*;
+import java.net.URL;
 
 /**
  * Main class.
@@ -18,12 +19,6 @@ import java.io.*;
  * @author Peter Grajcar
  */
 public class Main {
-
-    public static final String ANT_TEMPLATE =
-            "<?xml version=\"1.0\" encoding=\"us-ascii\"?>\n" +
-            "<project basedir=\".\" name=\"\">\n" +
-            "\t<!-- TODO -->\n" +
-            "</project>";
 
     private String filename;
     private boolean saved;
@@ -76,7 +71,6 @@ public class Main {
         mainPanel = new MainPanel();
         mainPanel.setBorder(new MatteBorder(0, 0, 1, 0, Color.LIGHT_GRAY));
         mainPanel.getCodeEditor().addChangeListener(e -> fileEdited());
-        mainPanel.getCodeEditor().setText(ANT_TEMPLATE);
         mainPanel.addChangeListener(e -> {
             JTabbedPane pane = (JTabbedPane) e.getSource();
             if(pane.getSelectedIndex() == 1)
@@ -98,7 +92,9 @@ public class Main {
 
         mainFrame.setVisible(true);
 
-        //loadFile("src/main/resources/build.xml");
+        //prevents loadFile showing save dialog
+        saved = true;
+        newFile();
     }
 
     /**
@@ -178,8 +174,20 @@ public class Main {
         }
         mainFrame.setTitle("Ant Editor - untitled *");
         filename = null;
-        mainPanel.getCodeEditor().setText(ANT_TEMPLATE);
         saved = false;
+
+        File template = new File(
+                getClass().getClassLoader().getResource("build-template.xml").getFile()
+        );
+        try(FileReader reader = new FileReader(template)) {
+            StringBuilder builder = new StringBuilder();
+            int b;
+            while((b = reader.read()) != -1)
+                builder.append((char) b);
+            mainPanel.getCodeEditor().setText(builder.toString());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -195,11 +203,11 @@ public class Main {
     }
 
     public static void main(String[] args) {
-        try {
+        /*try {
             UIManager.setLookAndFeel("javax.swing.plaf.metal.MetalLookAndFeel");
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e) {
             e.printStackTrace();
-        }
+        }*/
 
         SwingUtilities.invokeLater(new Main()::makeUI);
     }

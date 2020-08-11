@@ -6,7 +6,10 @@ import org.apache.tools.ant.Project;
 import org.apache.tools.ant.ProjectHelper;
 
 import javax.swing.*;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,6 +28,9 @@ public class AntRunner extends SwingWorker<Void, String> {
 
     private List<AntLogListener> logListenerList;
 
+    private PrintStream originalOut;
+    private PrintStream originalErr;
+
     /**
      * Creates a new {@code AntRunner} which will run the specified
      * target of the specified script on execution.
@@ -40,9 +46,17 @@ public class AntRunner extends SwingWorker<Void, String> {
 
     @Override
     protected Void doInBackground() throws Exception {
+        originalOut = System.out;
+        originalErr = System.err;
+
+        DispatchOutputStream dispatch = new DispatchOutputStream();
+        PrintStream out = new PrintStream(dispatch);
+        System.setOut(out);
+        System.setErr(out);
+
         File buildFile = new File(filename);
         Project project = new Project();
-        DefaultLogger consoleLogger = new DispatchLogger();
+        DefaultLogger consoleLogger = new DefaultLogger();
         consoleLogger.setErrorPrintStream(System.err);
         consoleLogger.setOutputPrintStream(System.out);
         consoleLogger.setMessageOutputLevel(Project.MSG_INFO);
@@ -80,15 +94,20 @@ public class AntRunner extends SwingWorker<Void, String> {
 
     @Override
     protected void done() {
+        System.setOut(originalOut);
+        System.setErr(originalErr);
         callback.run();
     }
 
-    private class DispatchLogger extends DefaultLogger {
+    private class DispatchOutputStream extends ByteArrayOutputStream {
+
         @Override
-        protected void log(String message) {
-            super.log(message);
-            publish(message);
+        public void flush() throws IOException {
+            super.flush();
+            publish(new String(this.toByteArray()));
+            this.reset();
         }
+
     }
 
     public boolean isRunning() {

@@ -10,9 +10,13 @@ import org.jdom2.input.SAXBuilder;
 import org.w3c.dom.Attr;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import javax.swing.border.MatteBorder;
 import java.awt.*;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
 import java.util.List;
 
 /**
@@ -73,15 +77,45 @@ public class LogPanel extends JPanel {
         clearButton.setMaximumSize(new Dimension(50, 100));
         toolBar.add(clearButton);
 
+        Font logFont = new Font("Courier New", Font.PLAIN, 14);
 
         log = new JTextArea();
         log.setEditable(false);
-        log.setFont(new Font("Courier New", Font.PLAIN, 12));
+        log.setFont(logFont);
         log.setMargin(new Insets(5, 10, 5, 10));
         JScrollPane logScrollPane = new JScrollPane(log);
         logScrollPane.setBorder(new MatteBorder(1, 0, 0, 0, Color.LIGHT_GRAY));
         logScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         add(logScrollPane, BorderLayout.CENTER);
+
+        JPanel inputPanel = new JPanel();
+        inputPanel.setLayout(new BorderLayout());
+        inputPanel.setBorder(new EmptyBorder(0, 10, 0, 10));
+        add(inputPanel, BorderLayout.SOUTH);
+
+        inputPanel.add(new JLabel("Input: "), BorderLayout.WEST);
+
+        JTextField inputField = new JTextField();
+        inputField.setFont(logFont);
+        inputPanel.add(inputField, BorderLayout.CENTER);
+        try {
+            PipedOutputStream pos = new PipedOutputStream();
+            PipedInputStream pis = new PipedInputStream(pos, 1024);
+            System.setIn(pis);
+            inputField.addActionListener(e -> {
+                try {
+                    pos.write((inputField.getText() + System.lineSeparator()).getBytes());
+                    System.out.println(inputField.getText());
+                    pos.flush();
+                    inputField.setText("");
+                } catch (IOException ioException) {
+                    ioException.printStackTrace();
+                }
+            });
+        } catch (IOException e) {
+            e.printStackTrace();
+            inputField.setEnabled(false);
+        }
     }
 
     /**
@@ -113,7 +147,7 @@ public class LogPanel extends JPanel {
         String targetName = (String) targetSelection.getSelectedItem();
         AntRunner antRunner = new AntRunner(filename, targetName);
         antRunner.addAntLogListener(msg -> {
-            log.append(msg + System.lineSeparator());
+            log.append(msg);
         });
 
         stopButton.addActionListener((e) -> {

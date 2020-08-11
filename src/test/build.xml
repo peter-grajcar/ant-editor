@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="us-ascii"?>
+<project basedir="../../../" name="">
+    <property name="src" location="src"/>
+    <property name="build" location="target/build"/>
+
+    <target name="init">
+        <mkdir dir="${build}" />
+    </target>
+
+    <target name="compile" depends="init">
+        <javac srcdir="${src}" destdir="${build}">
+            <include name="test/java/HelloWorld.java"/>
+        </javac>
+    </target>
+
+    <target name="run" depends="compile">
+        <java classname="HelloWorld" classpath="${build}"/>
+    </target>
+
+    <target name="clean">
+        <delete dir="${build}" />
+    </target>
+</project>
