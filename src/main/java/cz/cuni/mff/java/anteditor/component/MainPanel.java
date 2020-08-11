@@ -78,17 +78,20 @@ public class MainPanel extends JTabbedPane {
         //TODO: reload graph
     }
 
-
-    public JPanel getEditorPanel() {
-        return editorPanel;
-    }
-
-
+    /**
+     * Returns the code editor component.
+     *
+     * @return code editor component
+     */
     public CodeEditorPane getCodeEditor() {
         return codeEditor;
     }
 
-
+    /**
+     * Returns the dependency graph component.
+     *
+     * @return dependency graph component
+     */
     public TargetGraph getGraph() {
         return graph;
     }

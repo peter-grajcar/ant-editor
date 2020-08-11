@@ -119,7 +119,7 @@ public class LogPanel extends JPanel {
     }
 
     /**
-     *
+     * Refreshes the target selection.
      */
     public void refresh() {
         targetSelection.removeAllItems();
@@ -168,6 +168,11 @@ public class LogPanel extends JPanel {
 
     }
 
+    /**
+     * Sets filename which will be used when executing the ant script.
+     *
+     * @param filename Ant build script file name including the path
+     */
     public void setFilename(String filename) {
         this.filename = filename;
     }

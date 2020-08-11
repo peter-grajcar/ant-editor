@@ -110,18 +110,29 @@ public class AntRunner extends SwingWorker<Void, String> {
 
     }
 
-    public boolean isRunning() {
-        return !(isDone() || isCancelled());
-    }
-
+    /**
+     * Adds a {@link AntLogListener}.
+     *
+     * @param listener listener to add
+     */
     public void addAntLogListener(AntLogListener listener) {
         logListenerList.add(listener);
     }
 
+    /**
+     * Removes a {@link AntLogListener}.
+     *
+     * @param listener listener to remove
+     */
     public void removeAntLogListener(AntLogListener listener) {
         logListenerList.remove(listener);
     }
 
+    /**
+     * Sets callback which will be invoked after the execution is finished.
+     *
+     * @param callback callback function
+     */
     public void setCallback(Runnable callback) {
         this.callback = callback;
     }

@@ -25,26 +25,56 @@ public class CodeEditorHighlight {
         this.style = style;
     }
 
+    /**
+     * Returns start of the highlighted area.
+     *
+     * @return start of the highlighted area
+     */
     public int getStart() {
         return start;
     }
 
+    /**
+     * Sets start of the highlighted area.
+     *
+     * @param start start of the highlighted area
+     */
     public void setStart(int start) {
         this.start = start;
     }
 
+    /**
+     * Returns end of the highlighted area.
+     *
+     * @return end of the highlighted area
+     */
     public int getEnd() {
         return end;
     }
 
+    /**
+     * Sets end of the highlighted area.
+     *
+     * @param end end of the highlighted area
+     */
     public void setEnd(int end) {
         this.end = end;
     }
 
+    /**
+     * Returns style of the highlighted area.
+     *
+     * @return style of the highlighted area
+     */
     public CodeEditorStyle getStyle() {
         return style;
     }
 
+    /**
+     * Sets style of the highlighted area.
+     *
+     * @param style style of the highlighted area
+     */
     public void setStyle(CodeEditorStyle style) {
         this.style = style;
     }

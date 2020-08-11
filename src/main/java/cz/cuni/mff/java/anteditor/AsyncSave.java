@@ -54,6 +54,12 @@ public class AsyncSave extends SwingWorker<Boolean, Void> {
         callback.run();
     }
 
+    /**
+     * Returns exception thrown during the saving of the file. Returns null if no exception was
+     * thrown.
+     *
+     * @return exception thrown during save
+     */
     public Exception getException() {
         return exception;
     }
